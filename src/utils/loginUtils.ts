@@ -1,25 +1,23 @@
-import bcrypt from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import client from '../config/redis';
+import jsonwebtoken from 'jsonwebtoken';
+// tslint:disable-next-line: import-name
+import client from '../configs/redis';
 
 import { promisify } from 'util';
 const getAsync = promisify(client.get).bind(client);
 
 interface IPayload {
   nombre: string;
-  email: string;
-  is_active: boolean;
+  correo: string;
   id: number;
-  is_admin: boolean;
-  sucursal_user: number;
   iat: number;
   exp: number;
 }
 
 export const encriptar = async (password: string): Promise<string> => {
-  const salt = await bcrypt.genSalt(10);
-  return await bcrypt.hash(password, salt);
+  const salt = await bcryptjs.genSalt(10);
+  return bcryptjs.hash(password, salt);
 };
 
 export const compararPass = async ({
@@ -28,7 +26,7 @@ export const compararPass = async ({
 }: {
   password: string;
   pass: string;
-}): Promise<boolean> => await bcrypt.compare(password, pass);
+}): Promise<boolean> => bcryptjs.compare(password, pass);
 
 export const tokenValidation = async (
   req: Request,
@@ -41,7 +39,7 @@ export const tokenValidation = async (
     const bearer = tokenHeader.split(' ');
     const token = bearer[1];
 
-    // revisa si el token no esta en redis
+    // revisa si el token no esta en client
     const data = await getAsync(token);
 
     if (data) {
@@ -50,22 +48,19 @@ export const tokenValidation = async (
         .json('Usuario no tiene permitido ingresar al sistema');
     }
 
-    jwt.verify(token, `${process.env.TOKEN_SECRET}`, async (err, decoded) => {
-      const data = decoded as IPayload;
-      if (err) {
-        if (err.message == 'jwt expired') {
-          const respuesta = await refresh(token);
+    jsonwebtoken.verify(
+      token,
+      `${process.env.TOKEN_SECRET}`,
+      async (err, decoded) => {
+        if (err) {
+          if (err.message === 'jsonwebtoken expired') {
+            const respuesta = await refresh(token);
 
-          return res.status(201).json({ token: respuesta });
+            return res.status(201).json({ token: respuesta });
+          }
         }
-      }
-
-      if (!data.is_active) {
-        return res
-          .status(401)
-          .json('Usuario no tiene permitido ingresar al sistema');
-      }
-    });
+      },
+    );
     next();
   } catch (e) {
     return res.status(500).json(e);
@@ -80,7 +75,7 @@ const refresh = async (token: any) => {
       if (data) {
         const datos = await JSON.parse(data);
 
-        newToken = jwt.sign(datos, `${process.env.TOKEN_SECRET}`, {
+        newToken = jsonwebtoken.sign(datos, `${process.env.TOKEN_SECRET}`, {
           expiresIn: 60 * 60 * 12,
         });
 
@@ -118,7 +113,7 @@ export const verify = async (req: Request, res: Response) => {
   const token = bearer[1];
   if (!token) return res.status(401).json('Access denied');
 
-  // revisa si el token no esta en redis
+  // revisa si el token no esta en client
   const data = await getAsync(token);
 
   if (data == null) {
@@ -127,21 +122,26 @@ export const verify = async (req: Request, res: Response) => {
       .json('Usuario no tiene permitido ingresar al sistema');
   }
 
-  jwt.verify(token, `${process.env.TOKEN_SECRET}`, async (err, decoded) => {
-    const data = decoded as IPayload;
+  jsonwebtoken.verify(
+    token,
+    `${process.env.TOKEN_SECRET}`,
+    async (err, decoded) => {
+      // tslint:disable-next-line: no-shadowed-variable
+      const data = decoded as IPayload;
 
-    // si esta expirado crea un toklen nuevo y el viejo lo mete en el balcklist
-    if (err) {
-      if (err.message === 'jwt expired') {
-        const respuesta = await refresh(token);
+      // si esta expirado crea un toklen nuevo y el viejo lo mete en el balcklist
+      if (err) {
+        if (err.message === 'jsonwebtoken expired') {
+          const respuesta = await refresh(token);
 
-        return res.status(201).json({ token: respuesta });
+          return res.status(201).json({ token: respuesta });
+        }
       }
-    }
 
-    if (data == undefined) return res.status(401).json('NO valido');
-    if (data.iat > data.exp) return res.status(401).json('Token expirado');
+      if (data === undefined) return res.status(401).json('NO valido');
+      if (data.iat > data.exp) return res.status(401).json('Token expirado');
 
-    return res.status(200).json({ data });
-  });
+      return res.status(200).json({ data });
+    },
+  );
 };

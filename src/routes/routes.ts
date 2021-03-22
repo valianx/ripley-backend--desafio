@@ -1,14 +1,15 @@
+// tslint:disable-next-line: import-name
 import Router from 'express';
-import { Request, Response } from 'express';
+
+import * as controller from '../controllers/index';
 
 const router = Router();
 
-//usuarios
-// router.get('/users', getUsers);
-// router.post("/users", createUser);
-// router.get("/users/:id", getUserById);
-// router.put("/users/:id", putUser);
-// router.delete("/users/:id", deleteUser);
-// router.post("/userExist", userExist);
+// usuarios
+router.get('/users', controller.getUsers);
+router.post('/users', controller.createUser);
+router.get('/users/:id', controller.getUserById);
+router.put('/users/:id', controller.putUser);
+router.delete('/users/:id', controller.deleteUser);
 
 export default router;

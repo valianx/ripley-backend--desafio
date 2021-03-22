@@ -3,18 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const redis_1 = __importDefault(require("../config/redis"));
-const { promisify } = require('util');
-const getAsync = promisify(redis_1.default.get).bind(redis_1.default);
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+// tslint:disable-next-line: import-name
+const redis_1 = __importDefault(require("../configs/redis"));
+const util_1 = require("util");
+const getAsync = util_1.promisify(redis_1.default.get).bind(redis_1.default);
 exports.encriptar = async (password) => {
     const salt = await bcryptjs_1.default.genSalt(10);
-    return await bcryptjs_1.default.hash(password, salt);
+    return bcryptjs_1.default.hash(password, salt);
 };
-exports.compararPass = async function (password, pass) {
-    return await bcryptjs_1.default.compare(password, pass);
-};
+exports.compararPass = async ({ password, pass, }) => bcryptjs_1.default.compare(password, pass);
 exports.tokenValidation = async (req, res, next) => {
     try {
         const tokenHeader = req.header('Authorization');
@@ -22,24 +21,20 @@ exports.tokenValidation = async (req, res, next) => {
             return res.status(401).json('Access denied');
         const bearer = tokenHeader.split(' ');
         const token = bearer[1];
-        //revisa si el token no esta en redis
-        let data = await getAsync(token);
-        if (data == null)
+        // revisa si el token no esta en client
+        const data = await getAsync(token);
+        if (data) {
             return res
                 .status(401)
                 .json('Usuario no tiene permitido ingresar al sistema');
+        }
         jsonwebtoken_1.default.verify(token, `${process.env.TOKEN_SECRET}`, async (err, decoded) => {
-            let data = decoded;
             if (err) {
-                if (err.message == 'jwt expired') {
-                    let respuesta = await refresh(token);
+                if (err.message === 'jsonwebtoken expired') {
+                    const respuesta = await refresh(token);
                     return res.status(201).json({ token: respuesta });
                 }
             }
-            if (data.is_active == false)
-                return res
-                    .status(401)
-                    .json('Usuario no tiene permitido ingresar al sistema');
         });
         next();
     }
@@ -52,7 +47,7 @@ const refresh = async (token) => {
     await getAsync(token)
         .then(async (data) => {
         if (data) {
-            let datos = await JSON.parse(data);
+            const datos = await JSON.parse(data);
             newToken = jsonwebtoken_1.default.sign(datos, `${process.env.TOKEN_SECRET}`, {
                 expiresIn: 60 * 60 * 12,
             });
@@ -60,6 +55,7 @@ const refresh = async (token) => {
         }
     })
         .catch((e) => {
+        // tslint:disable-next-line: no-console
         console.log(e);
         return '';
     });
@@ -80,33 +76,33 @@ exports.verify = async (req, res) => {
     if (!tokenHeader)
         return res.status(401).json('Access denied');
     const bearer = tokenHeader.split(' ');
-    console.log(bearer);
-    if (bearer[0] != 'Bearer')
+    if (bearer[0] !== 'Bearer')
         return res.status(401).json('Access denied');
     const token = bearer[1];
     if (!token)
         return res.status(401).json('Access denied');
-    //revisa si el token no esta en redis
-    let data = await getAsync(token);
+    // revisa si el token no esta en client
+    const data = await getAsync(token);
     if (data == null) {
         return res
             .status(401)
             .json('Usuario no tiene permitido ingresar al sistema');
     }
     jsonwebtoken_1.default.verify(token, `${process.env.TOKEN_SECRET}`, async (err, decoded) => {
-        let data = decoded;
-        //si esta expirado crea un toklen nuevo y el viejo lo mete en el balcklist
+        // tslint:disable-next-line: no-shadowed-variable
+        const data = decoded;
+        // si esta expirado crea un toklen nuevo y el viejo lo mete en el balcklist
         if (err) {
-            if (err.message == 'jwt expired') {
-                let respuesta = await refresh(token);
+            if (err.message === 'jsonwebtoken expired') {
+                const respuesta = await refresh(token);
                 return res.status(201).json({ token: respuesta });
             }
         }
-        if (data == undefined)
+        if (data === undefined)
             return res.status(401).json('NO valido');
         if (data.iat > data.exp)
             return res.status(401).json('Token expirado');
-        return res.status(200).json({ data: data });
+        return res.status(200).json({ data });
     });
 };
 //# sourceMappingURL=loginUtils.js.map

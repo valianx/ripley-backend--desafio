@@ -5,30 +5,86 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("../models/User"));
 const loginUtils_1 = require("../utils/loginUtils");
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await User_1.default.findAll();
+        return res.status(200).json(users);
+    }
+    catch (e) {
+        return res.status(500).json(e.message);
+    }
+};
+exports.getUserById = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const data = await User_1.default.findOne({ where: { id } });
+        if (data == null)
+            return res.status(400).json('Usuario no existe');
+        return res.status(200).json(data);
+    }
+    catch (e) {
+        return res.status(500).json(e.message);
+    }
+};
 exports.createUser = async (req, res) => {
-    const { nombre, email, telefono, password, is_active, is_admin, categoria_user, } = req.body;
+    const { correo, nombre, password, rut } = req.body;
     try {
         let enc;
         if (password) {
             enc = await loginUtils_1.encriptar(password);
         }
-        const user = await User_1.default.build({
+        const user = User_1.default.build({
+            correo,
             nombre,
-            email,
-            telefono,
+            rut,
+            // tslint:disable-next-line: object-literal-sort-keys
             password: enc,
-            is_active,
-            is_admin,
-            categoria_user,
         });
-        let usuario = await user.save();
+        const usuario = await user.save();
         return res.status(200).json({
+            body: usuario,
             message: 'User created successfully',
-            body: usuario.dataValues,
         });
     }
     catch (e) {
-        console.log(e);
+        return res.status(500).json(e.message);
+    }
+};
+exports.putUser = async (req, res) => {
+    const id = req.params.id;
+    const { correo, nombre, password, rut } = req.body;
+    let enc;
+    if (password) {
+        enc = await loginUtils_1.encriptar(password);
+    }
+    try {
+        const user = await User_1.default.update({
+            correo,
+            nombre,
+            rut,
+            // tslint:disable-next-line: object-literal-sort-keys
+            password: enc,
+        }, { where: { id } });
+        // if (user == 0) return res.status(400).json('Usuario no existe');
+        return res.status(200).json(user);
+    }
+    catch (e) {
+        return res.status(500).json(e.message);
+    }
+};
+exports.deleteUser = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const user = await User_1.default.destroy({
+            where: {
+                id,
+            },
+        });
+        if (user === 0)
+            return res.status(400).json('Usuario no existe');
+        return res.status(200).json(`Usuario eliminado`);
+    }
+    catch (e) {
         return res.status(500).json(e.message);
     }
 };
