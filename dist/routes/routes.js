@@ -25,6 +25,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable-next-line: import-name
 const express_1 = __importDefault(require("express"));
 const controller = __importStar(require("../controllers/index"));
+const swaggerUi = require("swagger-ui-express");
+const swagger_1 = require("./swagger");
 const router = express_1.default();
 // usuarios
 router.get('/users', controller.getUsers);
@@ -32,5 +34,21 @@ router.post('/users', controller.createUser);
 router.get('/users/:id', controller.getUserById);
 router.put('/users/:id', controller.putUser);
 router.delete('/users/:id', controller.deleteUser);
+//swagger
+const options = {
+    customCss: `
+      .swagger-ui .topbar { display: none }
+      body { background-color: #DCDCDC; } 
+      .swagger-ui .auth-wrapper {background-color: #DCDCDC;} 
+      .swagger-ui .scheme-container {background-color: #DCDCDC;}
+      .swagger-ui .opblock .tab-header {background-color: #DCDCDC;}
+      .swagger-ui .opblock .opblock-section-header {background-color: #DCDCDC;}
+      .swagger-ui .parameters-col_description input[type=text] {background-color: #DCDCDC;}
+      .swagger-ui .opblock-body select {background-color: #DCDCDC;}
+      .swagger-ui .servers>label select {background-color: #DCDCDC;}
+      `,
+};
+router.use("/docs", swaggerUi.serve);
+router.get("/docs", swaggerUi.setup(swagger_1.swaggerDocument, options));
 exports.default = router;
 //# sourceMappingURL=routes.js.map
