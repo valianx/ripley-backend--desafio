@@ -1,32 +1,34 @@
-import { Sequelize } from 'sequelize';
-
-const sequelize = new Sequelize(
-  'd4ppm8brkpqat', // db
-  'dstsyphnmdoreh', // user
-  'e0c7c093efd490ab8bdd674ba7b6c11701f0767bf55ceaa1bb26dd9815a0e476', // password
-  {
-    dialect: 'postgres' /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false,
+const Sequelize = require("sequelize");
+try {
+  const sequelize = new Sequelize(
+    "cotizador", //db
+    "grillo", //user
+    "grillo2021", //password
+    {
+      host: "postgresql-16050-0.cloudclusters.net",
+      port: "16050",
+      dialect:
+        "postgres" /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
+      dialectOptions: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
-    },
-    host: 'ec2-18-214-208-89.compute-1.amazonaws.com',
-    // tslint:disable-next-line: no-console
-    logging: console.log,
-    port: 16050,
-  },
-);
+      logging: console.log,
+    }
+  );
 
-sequelize
-  .authenticate()
-  .then(() => {
-    // tslint:disable-next-line: no-console
-    console.log('Connection has been established successfully.');
-  })
-  .catch((err: any) => {
-    // tslint:disable-next-line: no-console
-    console.error('Unable to connect to the database:', err);
-  });
+  // const sequelize = new Sequelize('mysql://bea408fafdbe8f:d521c44f@us-cdbr-east-02.cleardb.com/heroku_ce6f0f29b65de64?reconnect=true');
+  sequelize
+    .authenticate()
+    .then(() => {
+      console.log("Connection has been established successfully.");
+    })
+    .catch((err: any) => {
+      console.error("Unable to connect to the database:", err);
+    });
 
-export default sequelize;
+  module.exports = sequelize;
+} catch (error) {
+  console.log(error);
+}

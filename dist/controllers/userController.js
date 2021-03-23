@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteUser = exports.putUser = exports.createUser = exports.getUserById = exports.getUsers = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const loginUtils_1 = require("../utils/loginUtils");
 exports.getUsers = async (req, res) => {
@@ -19,7 +20,7 @@ exports.getUserById = async (req, res) => {
     try {
         const data = await User_1.default.findOne({ where: { id } });
         if (data == null)
-            return res.status(400).json('Usuario no existe');
+            return res.status(400).json("Usuario no existe");
         return res.status(200).json(data);
     }
     catch (e) {
@@ -43,7 +44,7 @@ exports.createUser = async (req, res) => {
         const usuario = await user.save();
         return res.status(200).json({
             body: usuario,
-            message: 'User created successfully',
+            message: "User created successfully",
         });
     }
     catch (e) {
@@ -52,7 +53,7 @@ exports.createUser = async (req, res) => {
 };
 exports.putUser = async (req, res) => {
     const id = req.params.id;
-    const { correo, nombre, password, rut } = req.body;
+    const { correo, nombre, password, rut, saldo } = req.body;
     let enc;
     if (password) {
         enc = await loginUtils_1.encriptar(password);
@@ -64,6 +65,7 @@ exports.putUser = async (req, res) => {
             rut,
             // tslint:disable-next-line: object-literal-sort-keys
             password: enc,
+            saldo,
         }, { where: { id } });
         // if (user == 0) return res.status(400).json('Usuario no existe');
         return res.status(200).json(user);
@@ -81,7 +83,7 @@ exports.deleteUser = async (req, res) => {
             },
         });
         if (user === 0)
-            return res.status(400).json('Usuario no existe');
+            return res.status(400).json("Usuario no existe");
         return res.status(200).json(`Usuario eliminado`);
     }
     catch (e) {

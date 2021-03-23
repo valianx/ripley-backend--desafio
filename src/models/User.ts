@@ -1,11 +1,13 @@
 // tslint:disable-next-line: import-name
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
 // tslint:disable-next-line: import-name
-import sequelize from '../configs/database';
+const sequelize = require("../configs/database");
 
 const Model = Sequelize.Model;
 
-class User extends Model {}
+class User extends Model {
+  dataValues: any;
+}
 User.init(
   {
     // attributes
@@ -32,13 +34,18 @@ User.init(
       type: Sequelize.STRING,
       unique: true,
     },
+    saldo: {
+      allowNull: false,
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
+    },
   },
   {
-    modelName: 'users',
+    modelName: "users",
     // tslint:disable-next-line: object-shorthand-properties-first
     sequelize,
     // options
-  },
+  }
 );
 
 // User.sync({ alter: true }).then(() => { });

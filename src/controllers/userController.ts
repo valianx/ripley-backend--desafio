@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import User from '../models/User';
-import { encriptar } from '../utils/loginUtils';
+import { Request, Response } from "express";
+import User from "../models/User";
+import { encriptar } from "../utils/loginUtils";
 
 export const getUsers = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -14,12 +14,12 @@ export const getUsers = async (req: Request, res: Response): Promise<any> => {
 
 export const getUserById = async (
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<any> => {
   const id = req.params.id;
   try {
     const data = await User.findOne({ where: { id } });
-    if (data == null) return res.status(400).json('Usuario no existe');
+    if (data == null) return res.status(400).json("Usuario no existe");
     return res.status(200).json(data);
   } catch (e) {
     return res.status(500).json(e.message);
@@ -44,7 +44,7 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
     const usuario = await user.save();
     return res.status(200).json({
       body: usuario,
-      message: 'User created successfully',
+      message: "User created successfully",
     });
   } catch (e) {
     return res.status(500).json(e.message);
@@ -53,7 +53,7 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
 
 export const putUser = async (req: Request, res: Response): Promise<any> => {
   const id = req.params.id;
-  const { correo, nombre, password, rut } = req.body;
+  const { correo, nombre, password, rut, saldo } = req.body;
   let enc;
   if (password) {
     enc = await encriptar(password);
@@ -67,8 +67,9 @@ export const putUser = async (req: Request, res: Response): Promise<any> => {
         rut,
         // tslint:disable-next-line: object-literal-sort-keys
         password: enc,
+        saldo,
       },
-      { where: { id } },
+      { where: { id } }
     );
     // if (user == 0) return res.status(400).json('Usuario no existe');
     return res.status(200).json(user);
@@ -85,7 +86,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<any> => {
         id,
       },
     });
-    if (user === 0) return res.status(400).json('Usuario no existe');
+    if (user === 0) return res.status(400).json("Usuario no existe");
     return res.status(200).json(`Usuario eliminado`);
   } catch (e) {
     return res.status(500).json(e.message);
