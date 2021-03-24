@@ -14,7 +14,7 @@ Transferencia.init({
     // attributes
     amount: {
         allowNull: false,
-        type: sequelize_1.default.NUMBER,
+        type: sequelize_1.default.INTEGER,
     },
     createdAt: {
         allowNull: false,

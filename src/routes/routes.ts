@@ -1,25 +1,33 @@
 // tslint:disable-next-line: import-name
-import Router from 'express';
+import Router from "express";
 
-import * as controller from '../controllers/index';
+import * as controller from "../controllers/index";
 const swaggerUi = require("swagger-ui-express");
 import { swaggerDocument } from "./swagger";
+import {
+  transferencia,
+  carga,
+  retiro,
+  getTransferencias,
+} from "../controllers/transactionController";
 
 const router = Router();
 
 // usuarios
-router.get('/users', controller.getUsers);
-router.post('/users', controller.createUser);
-router.get('/users/:id', controller.getUserById);
-router.put('/users/:id', controller.putUser);
-router.delete('/users/:id', controller.deleteUser);
+router.get("/users", controller.getUsers);
+router.post("/users", controller.createUser);
+router.get("/users/:id", controller.getUserById);
+router.put("/users/:id", controller.putUser);
+router.delete("/users/:id", controller.deleteUser);
 
-
-
+router.get("/transferencias", getTransferencias);
+router.post("/nuevaTransferencia", transferencia);
+router.post("/nuevaCarga", carga);
+router.post("/nuevoRetiro", retiro);
 
 //swagger
 const options = {
-    customCss: `
+  customCss: `
       .swagger-ui .topbar { display: none }
       body { background-color: #DCDCDC; } 
       .swagger-ui .auth-wrapper {background-color: #DCDCDC;} 
@@ -30,9 +38,9 @@ const options = {
       .swagger-ui .opblock-body select {background-color: #DCDCDC;}
       .swagger-ui .servers>label select {background-color: #DCDCDC;}
       `,
-  };
-  
-  router.use("/docs", swaggerUi.serve);
-  router.get("/docs", swaggerUi.setup(swaggerDocument, options));
+};
+
+router.use("/docs", swaggerUi.serve);
+router.get("/docs", swaggerUi.setup(swaggerDocument, options));
 
 export default router;

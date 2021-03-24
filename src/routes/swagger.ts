@@ -1,3 +1,17 @@
+import {
+  deleteUserById,
+  getUsers,
+  nuevoUser,
+  putUserById,
+  userById,
+} from "../docs/user.swagger";
+
+import {
+  nuevaCarga,
+  nuevoRetiro,
+  nuevoTransaction,
+} from "../docs/transactions.swagger";
+
 export const swaggerDocument = {
   openapi: "3.0.1",
   consumes: ["application/json"],
@@ -9,7 +23,7 @@ export const swaggerDocument = {
     termsOfService: "",
     contact: {
       name: "Mario Gutierrez",
-      email: "mgutiers3012@gmail.com"
+      email: "mgutiers3012@gmail.com",
     },
     license: {
       name: "Apache 2.0",
@@ -18,8 +32,12 @@ export const swaggerDocument = {
   },
   servers: [
     {
-      url: "https://cotizador.grillo.cl/api",
+      url: "http://localhost:3000/api/",
       description: "Dev server",
+    },
+    {
+      url: "https://desafio-ripley-app.herokuapp.com/api",
+      description: "Prod server",
     },
   ],
   components: {
@@ -33,6 +51,23 @@ export const swaggerDocument = {
     },
   },
   paths: {
-    "/getData/{id}": {},
+    "/users": {
+      get: getUsers,
+      post: nuevoUser,
+    },
+    "/users/{id}": {
+      get: userById,
+      put: putUserById,
+      delete: deleteUserById,
+    },
+    "/nuevaTransferencia": {
+      post: nuevoTransaction,
+    },
+    "/nuevaCarga": {
+      post: nuevaCarga,
+    },
+    "/nuevoRetiro": {
+      post: nuevoRetiro,
+    },
   },
 };
