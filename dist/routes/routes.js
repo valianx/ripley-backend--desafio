@@ -27,7 +27,6 @@ const express_1 = __importDefault(require("express"));
 const controller = __importStar(require("../controllers/index"));
 const swaggerUi = require("swagger-ui-express");
 const swagger_1 = require("./swagger");
-const transactionController_1 = require("../controllers/transactionController");
 const router = express_1.default();
 // usuarios
 router.get("/users", controller.getUsers);
@@ -35,10 +34,11 @@ router.post("/users", controller.createUser);
 router.get("/users/:id", controller.getUserById);
 router.put("/users/:id", controller.putUser);
 router.delete("/users/:id", controller.deleteUser);
-router.get("/transferencias", transactionController_1.getTransferencias);
-router.post("/nuevaTransferencia", transactionController_1.transferencia);
-router.post("/nuevaCarga", transactionController_1.carga);
-router.post("/nuevoRetiro", transactionController_1.retiro);
+router.get("/transferencias", controller.getTransferencias);
+router.post("/nuevaTransferencia", controller.transferencia);
+router.post("/nuevaCarga", controller.carga);
+router.post("/nuevoRetiro", controller.retiro);
+router.post("/login", controller.loginUser);
 //swagger
 const options = {
     customCss: `

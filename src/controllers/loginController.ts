@@ -5,10 +5,10 @@ import { compararPass } from "../utils/loginUtils";
 import client from "../configs/redis";
 
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { rut, password } = req.body;
   try {
     let user = await User.findOne({
-      where: { email },
+      where: { rut },
     });
 
     if (user) {

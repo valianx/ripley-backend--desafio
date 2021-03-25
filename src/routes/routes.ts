@@ -4,12 +4,6 @@ import Router from "express";
 import * as controller from "../controllers/index";
 const swaggerUi = require("swagger-ui-express");
 import { swaggerDocument } from "./swagger";
-import {
-  transferencia,
-  carga,
-  retiro,
-  getTransferencias,
-} from "../controllers/transactionController";
 
 const router = Router();
 
@@ -20,10 +14,12 @@ router.get("/users/:id", controller.getUserById);
 router.put("/users/:id", controller.putUser);
 router.delete("/users/:id", controller.deleteUser);
 
-router.get("/transferencias", getTransferencias);
-router.post("/nuevaTransferencia", transferencia);
-router.post("/nuevaCarga", carga);
-router.post("/nuevoRetiro", retiro);
+router.get("/transferencias", controller.getTransferencias);
+router.post("/nuevaTransferencia", controller.transferencia);
+router.post("/nuevaCarga", controller.carga);
+router.post("/nuevoRetiro", controller.retiro);
+
+router.post("/login", controller.loginUser);
 
 //swagger
 const options = {

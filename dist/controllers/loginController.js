@@ -9,10 +9,10 @@ const User_1 = __importDefault(require("../models/User"));
 const loginUtils_1 = require("../utils/loginUtils");
 const redis_1 = __importDefault(require("../configs/redis"));
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { rut, password } = req.body;
     try {
         let user = await User_1.default.findOne({
-            where: { email },
+            where: { rut },
         });
         if (user) {
             if (user.dataValues.is_active == false)
