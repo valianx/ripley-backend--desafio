@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nuevoRetiro = exports.nuevaCarga = exports.nuevoTransaction = void 0;
+exports.getTransactions = exports.nuevoRetiro = exports.nuevaCarga = exports.nuevoTransaction = void 0;
 const transferencia = {
     type: "object",
     properties: {
@@ -102,6 +102,40 @@ exports.nuevoRetiro = {
             },
         },
     },
+    responses: {
+        "200": {
+            description: "Transaccion OK",
+            content: {
+                "application/json": {
+                    schema: {
+                        type: "array",
+                        items: {},
+                    },
+                },
+            },
+        },
+    },
+};
+exports.getTransactions = {
+    tags: ["Sistema Transacciones"],
+    description: "Se obtiene el listado de transacciones",
+    operationId: "getTransactions",
+    security: [
+        {
+            bearerAuth: [],
+        },
+    ],
+    parameters: [
+        {
+            name: "id",
+            in: "path",
+            required: true,
+            descripcion: "ID del usuario",
+            schema: {
+                type: "number",
+            },
+        },
+    ],
     responses: {
         "200": {
             description: "Transaccion OK",

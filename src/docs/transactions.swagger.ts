@@ -116,3 +116,38 @@ export const nuevoRetiro = {
     },
   },
 };
+
+export const getTransactions = {
+  tags: ["Sistema Transacciones"],
+  description: "Se obtiene el listado de transacciones",
+  operationId: "getTransactions",
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  parameters: [
+    {
+      name: "id",
+      in: "path",
+      required: true,
+      descripcion: "ID del usuario",
+      schema: {
+        type: "number",
+      },
+    },
+  ],
+  responses: {
+    "200": {
+      description: "Transaccion OK",
+      content: {
+        "application/json": {
+          schema: {
+            type: "array",
+            items: {},
+          },
+        },
+      },
+    },
+  },
+};

@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.putUser = exports.createUser = exports.getUserById = exports.getUsers = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const loginUtils_1 = require("../utils/loginUtils");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const redis_1 = __importDefault(require("../configs/redis"));
 exports.getUsers = async (req, res) => {
     try {
         const users = await User_1.default.findAll();
@@ -29,6 +31,7 @@ exports.getUserById = async (req, res) => {
 };
 exports.createUser = async (req, res) => {
     const { correo, nombre, password, rut } = req.body;
+    console.log(correo, nombre, password, rut);
     try {
         let enc;
         if (password) {
@@ -42,12 +45,23 @@ exports.createUser = async (req, res) => {
             password: enc,
         });
         const usuario = await user.save();
+        let tokenuser = {
+            email: usuario.dataValues.correo,
+            rut: usuario.dataValues.rut,
+            id: usuario.dataValues.id,
+        };
+        let token = jsonwebtoken_1.default.sign(tokenuser, `${process.env.TOKEN_SECRET}`, {
+            expiresIn: 60 * 60 * 2,
+        });
+        redis_1.default.setex(token, 60 * 60 * 2, JSON.stringify(tokenuser));
         return res.status(200).json({
             body: usuario,
+            token,
             message: "User created successfully",
         });
     }
     catch (e) {
+        console.log(e);
         return res.status(500).json(e.message);
     }
 };

@@ -10,20 +10,15 @@ export const loginUser = async (req: Request, res: Response) => {
     let user = await User.findOne({
       where: { rut },
     });
-
     if (user) {
-      if (user.dataValues.is_active == false)
-        return res
-          .status(401)
-          .json("Usuario no tiene permitido ingresar al sistema");
+      const iguales = await compararPass(password, user.dataValues.password);
 
-      const iguales = await compararPass(user.dataValues.password, password);
-
-      if (iguales === false)
+      if (iguales === false) {
         return res.status(400).json("Contraseña es incorrecta");
+      }
 
       let tokenuser = {
-        email: user.dataValues.email,
+        email: user.dataValues.correo,
         rut: user.dataValues.rut,
         id: user.dataValues.id,
       };
@@ -34,9 +29,10 @@ export const loginUser = async (req: Request, res: Response) => {
       client.setex(token, 60 * 60 * 2, JSON.stringify(tokenuser));
       res.status(200).json({
         nombre: user.dataValues.nombre,
-        email: user.dataValues.email,
+        email: user.dataValues.correo,
         rut: user.dataValues.rut,
         id: user.dataValues.id,
+        balance: user.dataValues.saldo,
         token: token,
       });
     } else {

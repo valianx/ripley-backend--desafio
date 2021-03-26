@@ -13,6 +13,7 @@ export const transferencia = async (
   res: Response
 ): Promise<any> => {
   const { origenRut, destinoRut, amount } = req.body;
+
   //obtiene la cuenta debtor de la db
   const debtor = await User.findOne({ where: { rut: origenRut } });
   //valida si existe la cuenta y tiene fondos
@@ -34,7 +35,10 @@ export const transferencia = async (
 
   //se envian los pdfs correspondientes
   sendPdf(debtor, destination, true, amount, false);
-  return res.status(200).json({ data: transferencia });
+  return res.status(200).json({
+    data: transferencia,
+    newBalance: debtor?.dataValues.saldo - amount,
+  });
 };
 
 export const retiro = async (req: Request, res: Response): Promise<any> => {
@@ -66,12 +70,15 @@ export const retiro = async (req: Request, res: Response): Promise<any> => {
     }
   );
   sendPdf(user, null, false, amount, false);
-  return res.status(200).json("Operación realizada con éxito");
+  return res.status(200).json({
+    mensaje: "Operación realizada con éxito",
+    monto: user.dataValues.saldo - amount,
+  });
 };
 
 export const carga = async (req: Request, res: Response): Promise<any> => {
   const { rut, amount } = req.body;
-
+  console.log(rut, amount);
   const user = await User.findOne({ where: { rut } });
   if (!user) {
     return res.status(400).json({ error: "Usuario no válido" });
@@ -91,7 +98,10 @@ export const carga = async (req: Request, res: Response): Promise<any> => {
     }
   );
   sendPdf(user, null, false, amount, true);
-  return res.status(200).json("Saldo actualizado");
+  return res.status(200).json({
+    mensaje: "Saldo actualizado",
+    monto: user.dataValues.saldo + amount,
+  });
 };
 
 const nuevaTransferencia = async (
@@ -133,8 +143,11 @@ export const getTransferencias = async (
   req: Request,
   res: Response
 ): Promise<any> => {
+  const id = req.params.id;
   try {
-    const transferencias = await Transferencia.findAll();
+    const transferencias = await Transferencia.findAll({
+      where: { origen_user: id },
+    });
     return res.status(200).json(transferencias);
   } catch (e) {
     console.log(e);
@@ -220,3 +233,4 @@ const createPdf = async (): Promise<string> => {
   doc.save(pathPdf);
   return pathPdf;
 };
+

@@ -15,15 +15,12 @@ exports.loginUser = async (req, res) => {
             where: { rut },
         });
         if (user) {
-            if (user.dataValues.is_active == false)
-                return res
-                    .status(401)
-                    .json("Usuario no tiene permitido ingresar al sistema");
-            const iguales = await loginUtils_1.compararPass(user.dataValues.password, password);
-            if (iguales === false)
+            const iguales = await loginUtils_1.compararPass(password, user.dataValues.password);
+            if (iguales === false) {
                 return res.status(400).json("Contraseña es incorrecta");
+            }
             let tokenuser = {
-                email: user.dataValues.email,
+                email: user.dataValues.correo,
                 rut: user.dataValues.rut,
                 id: user.dataValues.id,
             };
@@ -33,9 +30,10 @@ exports.loginUser = async (req, res) => {
             redis_1.default.setex(token, 60 * 60 * 2, JSON.stringify(tokenuser));
             res.status(200).json({
                 nombre: user.dataValues.nombre,
-                email: user.dataValues.email,
+                email: user.dataValues.correo,
                 rut: user.dataValues.rut,
                 id: user.dataValues.id,
+                balance: user.dataValues.saldo,
                 token: token,
             });
         }

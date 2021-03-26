@@ -10,7 +10,9 @@ import {
   nuevaCarga,
   nuevoRetiro,
   nuevoTransaction,
+  getTransactions,
 } from "../docs/transactions.swagger";
+import { logIn } from "../docs/login.swagger";
 
 export const swaggerDocument = {
   openapi: "3.0.1",
@@ -32,12 +34,12 @@ export const swaggerDocument = {
   },
   servers: [
     {
-      url: "http://localhost:3000/api/",
-      description: "Dev server",
-    },
-    {
       url: "https://desafio-ripley-app.herokuapp.com/api",
       description: "Prod server",
+    },
+    {
+      url: "http://localhost:3000/api/",
+      description: "Dev server",
     },
   ],
   components: {
@@ -68,6 +70,12 @@ export const swaggerDocument = {
     },
     "/nuevoRetiro": {
       post: nuevoRetiro,
+    },
+    "/transferencias/:id": {
+      get: getTransactions,
+    },
+    "/login": {
+      post: logIn,
     },
   },
 };

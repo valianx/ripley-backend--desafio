@@ -1,12 +1,12 @@
 "use strict";
 const Sequelize = require("sequelize");
 try {
-    const sequelize = new Sequelize("cotizador", //db
-    "grillo", //user
-    "grillo2021", //password
+    const sequelize = new Sequelize("d4ppm8brkpqat", //db
+    "dstsyphnmdoreh", //user
+    "e0c7c093efd490ab8bdd674ba7b6c11701f0767bf55ceaa1bb26dd9815a0e476", //password
     {
-        host: "postgresql-16050-0.cloudclusters.net",
-        port: "16050",
+        host: "ec2-18-214-208-89.compute-1.amazonaws.com",
+        port: "5432",
         dialect: "postgres" /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
         dialectOptions: {
             ssl: {

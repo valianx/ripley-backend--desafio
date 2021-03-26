@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import { encriptar } from "../utils/loginUtils";
+import jwt from "jsonwebtoken";
+import client from "../configs/redis";
 
 export const getUsers = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -27,7 +29,7 @@ export const getUserById = async (
 };
 export const createUser = async (req: Request, res: Response): Promise<any> => {
   const { correo, nombre, password, rut } = req.body;
-
+  console.log(correo, nombre, password, rut);
   try {
     let enc;
     if (password) {
@@ -42,11 +44,25 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
     });
 
     const usuario = await user.save();
+
+    let tokenuser = {
+      email: usuario.dataValues.correo,
+      rut: usuario.dataValues.rut,
+      id: usuario.dataValues.id,
+    };
+
+    let token = jwt.sign(tokenuser, `${process.env.TOKEN_SECRET}`, {
+      expiresIn: 60 * 60 * 2,
+    });
+
+    client.setex(token, 60 * 60 * 2, JSON.stringify(tokenuser));
     return res.status(200).json({
       body: usuario,
+      token,
       message: "User created successfully",
     });
   } catch (e) {
+    console.log(e);
     return res.status(500).json(e.message);
   }
 };

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.swaggerDocument = void 0;
 const user_swagger_1 = require("../docs/user.swagger");
 const transactions_swagger_1 = require("../docs/transactions.swagger");
+const login_swagger_1 = require("../docs/login.swagger");
 exports.swaggerDocument = {
     openapi: "3.0.1",
     consumes: ["application/json"],
@@ -23,12 +24,12 @@ exports.swaggerDocument = {
     },
     servers: [
         {
-            url: "http://localhost:3000/api/",
-            description: "Dev server",
-        },
-        {
             url: "https://desafio-ripley-app.herokuapp.com/api",
             description: "Prod server",
+        },
+        {
+            url: "http://localhost:3000/api/",
+            description: "Dev server",
         },
     ],
     components: {
@@ -59,6 +60,12 @@ exports.swaggerDocument = {
         },
         "/nuevoRetiro": {
             post: transactions_swagger_1.nuevoRetiro,
+        },
+        "/transferencias/:id": {
+            get: transactions_swagger_1.getTransactions,
+        },
+        "/login": {
+            post: login_swagger_1.logIn,
         },
     },
 };

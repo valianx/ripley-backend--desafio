@@ -29,7 +29,10 @@ exports.transferencia = async (req, res) => {
     const transferencia = await nuevaTransferencia(debtor, destination, amount);
     //se envian los pdfs correspondientes
     sendPdf(debtor, destination, true, amount, false);
-    return res.status(200).json({ data: transferencia });
+    return res.status(200).json({
+        data: transferencia,
+        newBalance: (debtor === null || debtor === void 0 ? void 0 : debtor.dataValues.saldo) - amount,
+    });
 };
 exports.retiro = async (req, res) => {
     const { rut, amount } = req.body;
@@ -53,10 +56,14 @@ exports.retiro = async (req, res) => {
         where: { rut },
     });
     sendPdf(user, null, false, amount, false);
-    return res.status(200).json("Operación realizada con éxito");
+    return res.status(200).json({
+        mensaje: "Operación realizada con éxito",
+        monto: user.dataValues.saldo - amount,
+    });
 };
 exports.carga = async (req, res) => {
     const { rut, amount } = req.body;
+    console.log(rut, amount);
     const user = await User_1.default.findOne({ where: { rut } });
     if (!user) {
         return res.status(400).json({ error: "Usuario no válido" });
@@ -72,7 +79,10 @@ exports.carga = async (req, res) => {
         where: { rut },
     });
     sendPdf(user, null, false, amount, true);
-    return res.status(200).json("Saldo actualizado");
+    return res.status(200).json({
+        mensaje: "Saldo actualizado",
+        monto: user.dataValues.saldo + amount,
+    });
 };
 const nuevaTransferencia = async (debtor, destination, amount) => {
     await User_1.default.update({
@@ -98,8 +108,11 @@ const nuevaTransferencia = async (debtor, destination, amount) => {
     return transferencia;
 };
 exports.getTransferencias = async (req, res) => {
+    const id = req.params.id;
     try {
-        const transferencias = await Transferencia_1.default.findAll();
+        const transferencias = await Transferencia_1.default.findAll({
+            where: { origen_user: id },
+        });
         return res.status(200).json(transferencias);
     }
     catch (e) {

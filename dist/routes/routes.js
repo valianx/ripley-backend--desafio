@@ -34,7 +34,7 @@ router.post("/users", controller.createUser);
 router.get("/users/:id", controller.getUserById);
 router.put("/users/:id", controller.putUser);
 router.delete("/users/:id", controller.deleteUser);
-router.get("/transferencias", controller.getTransferencias);
+router.get("/transferencias/:id", controller.getTransferencias);
 router.post("/nuevaTransferencia", controller.transferencia);
 router.post("/nuevaCarga", controller.carga);
 router.post("/nuevoRetiro", controller.retiro);
